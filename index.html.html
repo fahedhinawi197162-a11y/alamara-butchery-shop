@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملحمة ومشاوي العمارة - أجود أنواع اللحوم والمشاوي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+        }
+        
+        .meat-card {
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        }
+        
+        .meat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(139, 69, 19, 0.2);
+        }
+        
+        .price-tag {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #8B4513;
+            font-weight: bold;
+        }
+        
+        .admin-panel {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #8B4513;
+        }
+        
+        .section-header {
+            background: linear-gradient(45deg, #8B4513, #D2691E);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .weight-modal {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .promo-banner {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .mobile-cart-collapsed {
+            transform: translateY(calc(100% - 80px));
+        }
+        
+        .mobile-cart-expanded {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel fixed top-0 left-0 w-full h-full text-white p-6 overflow-y-auto z-50 hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-orange-400">🔧 لوحة التحكم - ملحمة ومشاوي العمارة</h2>
+                <button onclick="toggleAdminPanel()" class="text-white hover:text-orange-400 text-3xl">✕</button>
+            </div>
+            
+            <!-- Promotional Messages Section -->
+            <div class="bg-gray-800 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-bold mb-4 text-green-400">📢 إدارة الرسائل الترويجية</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h4 class="font-bold mb-2">الرسائل الجاهزة:</h4>
+                        <select id="promoSelect" class="w-full p-2 bg-gray-700 text-white rounded">
+                            <option value="">اختر رسالة جاهزة</option>
+                            <option value="خصم 20% على جميع المشاوي - عرض محدود!">خصم 20% على المشاوي</option>
+                            <option value="توصيل مجاني لطلبات أكثر من 150 درهم">توصيل مجاني +150 درهم</option>
+                            <option value="عرض نهاية الأسبوع - خصم 15% على اللحوم الاسترالية">عرض نهاية الأسبوع</option>
+                            <option value="جودة عالية - أسعار منافسة - توصيل سريع">رسالة الجودة</option>
+                            <option value="لحوم طازجة يومياً من أفضل المصادر">رسالة الطزاجة</option>
+                            <option value="خصم خاص على الدواجن - اطلب الآن!">خصم الدواجن</option>
+                            <option value="مشاوي جاهزة ولذيذة - جرب الآن!">مشاوي جاهزة</option>
+                            <option value="عرض العائلات - خصم 25% على الطلبات الكبيرة">عرض العائلات</option>
+                            <option value="لحوم نجدية أصلية - طعم لا يُقاوم">لحوم نجدية</option>
+                            <option value="خدمة 24 ساعة - اطلب في أي وقت">خدمة 24 ساعة</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-2">رسالة مخصصة:</h4>
+                        <textarea id="customPromo" placeholder="اكتب رسالتك الترويجية هنا..." class="w-full p-2 bg-gray-700 text-white rounded h-20"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-2 mb-4">
+                    <button onclick="setPromoMessage()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">تفعيل الرسالة</button>
+                    <button onclick="clearPromoMessage()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">إلغاء الرسالة</button>
+                </div>
+                <div id="promoPreview" class="bg-gray-700 p-3 rounded text-center hidden"></div>
+            </div>
+            
+            <!-- Products Management -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- المشاوي -->
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-bold mb-3 text-red-400">🔥 إدارة المشاوي</h3>
+                    <div id="grilledList" class="space-y-2 mb-3 max-h-60 overflow-y-auto"></div>
+                    <button onclick="addNewProduct('grilled')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm w-full">➕ إضافة مشوي</button>
+                </div>
+                
+                <!-- الدواجن -->
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-bold mb-3 text-yellow-400">🐔 إدارة الدواجن</h3>
+                    <div id="poultryList" class="space-y-2 mb-3 max-h-60 overflow-y-auto"></div>
+                    <button onclick="addNewProduct('poultry')" class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm w-full">➕ إضافة دواجن</button>
+                </div>
+                
+                <!-- اللحوم -->
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h3 class="text-lg font-bold mb-3 text-blue-400">🥩 إدارة اللحوم</h3>
+                    <div id="meatList" class="space-y-2 mb-3 max-h-60 overflow-y-auto"></div>
+                    <button onclick="addNewProduct('meat')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm w-full">➕ إضافة لحوم</button>
+                </div>
+            </div>
+            
+            <!-- Delivery Areas Management -->
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <h3 class="text-lg font-bold mb-3 text-purple-400">🚚 إدارة مناطق التوصيل</h3>
+
+                <div id="deliveryAreasList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4"></div>
+                <button onclick="addNewDeliveryArea()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">➕ إضافة منطقة جديدة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weight Selection Modal -->
+    <div id="weightModal" class="weight-modal fixed inset-0 flex items-center justify-center z-40 hidden">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4 text-center">اختر الوزن</h3>
+            <div id="productInfo" class="text-center mb-4"></div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="selectWeight(0.5)" class="bg-orange-500 text-white p-3 rounded hover:bg-orange-600">نصف كيلو</button>
+                <button onclick="selectWeight(1)" class="bg-orange-500 text-white p-3 rounded hover:bg-orange-600">كيلو واحد</button>
+                <button onclick="selectWeight(1.5)" class="bg-orange-500 text-white p-3 rounded hover:bg-orange-600">كيلو ونصف</button>
+                <button onclick="selectWeight(2)" class="bg-orange-500 text-white p-3 rounded hover:bg-orange-600">2 كيلو</button>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2">وزن مخصص (كيلو):</label>
+                <input type="number" id="customWeight" step="0.1" min="0.1" class="w-full p-2 border rounded">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="confirmWeight()" class="bg-green-500 text-white px-4 py-2 rounded flex-1 hover:bg-green-600">تأكيد</button>
+                <button onclick="closeWeightModal()" class="bg-gray-500 text-white px-4 py-2 rounded flex-1 hover:bg-gray-600">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotional Banner -->
+    <div id="promoBanner" class="promo-banner text-white text-center py-3 font-bold text-lg hidden">
+        <div id="promoText"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="hero-bg text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">🥩 ملحمة ومشاوي العمارة</h1>
+            <div class="mb-8">
+                <p class="text-xl md:text-2xl mb-2">أبوظبي - المصفح - شعبية 10</p>
+            </div>
+            <p class="text-lg md:text-xl mb-8">أجود أنواع اللحوم الطازجة والمشاوي اللذيذة - توصيل سريع لجميع مناطق أبوظبي</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                <a href="tel:+971566588281" class="bg-white text-orange-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors">
+                    📞 اتصل الآن: +971-56-658-8281
+                </a>
+                <a href="whatsapp://send?phone=971566588281" class="bg-green-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-600 transition-colors">
+                    💬 واتساب
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content with Responsive Layout -->
+    <div class="lg:flex min-h-screen bg-gray-50">
+        <!-- Products Sections -->
+        <section class="flex-1 py-16 lg:pr-8">
+            <div class="container mx-auto px-4">
+                <!-- المشاوي -->
+                <div class="section-header text-center">
+                    <h2 class="text-3xl font-bold">🔥 قسم المشاوي</h2>
+                </div>
+                <div id="grilledGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
+                
+                <!-- الدواجن -->
+                <div class="section-header text-center">
+                    <h2 class="text-3xl font-bold">🐔 قسم الدواجن</h2>
+                </div>
+                <div id="poultryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
+                
+                <!-- اللحوم -->
+                <div class="section-header text-center">
+                    <h2 class="text-3xl font-bold">🥩 قسم اللحوم</h2>
+                </div>
+                <div id="meatGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-32 lg:mb-6"></div>
+            </div>
+        </section>
+
+        <!-- Desktop Cart Sidebar -->
+        <div id="desktopCartSidebar" class="hidden lg:block w-96 bg-gradient-to-b from-orange-50 to-orange-100 shadow-2xl border-r-4 border-orange-400 sticky top-0 h-screen overflow-y-auto">
+            <!-- Cart Header -->
+            <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white p-6 shadow-lg">
+                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                    <span class="text-3xl">🛒</span>
+                    <h3 class="text-2xl font-bold">سلة الطلبات</h3>
+                </div>
+                <div id="desktopCartItemCount" class="text-center mt-2 text-orange-200 text-sm"></div>
+            </div>
+            
+            <!-- Cart Content -->
+            <div class="p-6">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="text-orange-500 ml-2">📋</span>
+                        تفاصيل الطلب
+                    </h4>
+                    <div id="desktopOrderSummary" class="space-y-3 max-h-60 overflow-y-auto"></div>
+                </div>
+                
+                <!-- Delivery Section -->
+                <div id="desktopDeliverySection" class="bg-white rounded-lg shadow-md p-4 mb-6 hidden">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="text-blue-500 ml-2">🚚</span>
+                        التوصيل
+                    </h4>
+                    <label class="block mb-2 font-semibold text-gray-700">اختر منطقة التوصيل:</label>
+                    <select id="desktopDeliveryAreaSelect" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-orange-400 focus:outline-none mb-3">
+                        <option value="">اختر المنطقة</option>
+                    </select>
+                    <div id="desktopDeliveryInfo" class="text-sm text-gray-600 bg-gray-50 p-2 rounded"></div>
+                </div>
+                
+                <!-- Total Amount -->
+                <div id="desktopTotalAmount" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg mb-6 shadow-lg"></div>
+                
+                <!-- WhatsApp Button -->
+                <button onclick="sendWhatsAppOrder()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 space-x-reverse">
+                    <span class="text-2xl">📲</span>
+                    <span>إرسال الطلب عبر واتساب</span>
+                </button>
+                
+                <!-- Empty Cart Message -->
+                <div id="desktopEmptyCartMessage" class="text-center py-8 text-gray-500">
+                    <div class="text-6xl mb-4">🛒</div>
+                    <p class="text-lg font-semibold mb-2">السلة فارغة</p>
+                    <p class="text-sm">أضف منتجات لبدء الطلب</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Cart - Fixed Bottom -->
+    <div id="mobileCart" class="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-4 border-orange-400 z-40 mobile-cart-collapsed transition-transform duration-300">
+        <!-- Mobile Cart Header -->
+        <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2 space-x-reverse">
+                    <span class="text-2xl">🛒</span>
+                    <h3 class="text-lg font-bold">سلة الطلبات</h3>
+                </div>
+                <button onclick="toggleMobileCart()" class="text-white text-2xl">
+                    <span id="cartToggleIcon">▲</span>
+                </button>
+            </div>
+            <div id="mobileCartItemCount" class="text-center mt-1 text-orange-200 text-sm"></div>
+        </div>
+        
+        <!-- Mobile Cart Content -->
+        <div id="mobileCartContent" class="max-h-96 overflow-y-auto">
+            <div class="p-4">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="text-orange-500 ml-2">📋</span>
+                        تفاصيل الطلب
+                    </h4>
+                    <div id="mobileOrderSummary" class="space-y-3 max-h-40 overflow-y-auto"></div>
+                </div>
+                
+                <!-- Delivery Section -->
+                <div id="mobileDeliverySection" class="bg-white rounded-lg shadow-md p-4 mb-4 hidden">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <span class="text-blue-500 ml-2">🚚</span>
+                        التوصيل
+                    </h4>
+                    <label class="block mb-2 font-semibold text-gray-700">اختر منطقة التوصيل:</label>
+                    <select id="mobileDeliveryAreaSelect" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-orange-400 focus:outline-none mb-3">
+                        <option value="">اختر المنطقة</option>
+                    </select>
+                    <div id="mobileDeliveryInfo" class="text-sm text-gray-600 bg-gray-50 p-2 rounded"></div>
+                </div>
+                
+                <!-- Total Amount -->
+                <div id="mobileTotalAmount" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg mb-4 shadow-lg"></div>
+                
+                <!-- WhatsApp Button -->
+                <button onclick="sendWhatsAppOrder()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg flex items-center justify-center space-x-2 space-x-reverse">
+                    <span class="text-2xl">📲</span>
+                    <span>إرسال الطلب عبر واتساب</span>
+                </button>
+                
+                <!-- Empty Cart Message -->
+                <div id="mobileEmptyCartMessage" class="text-center py-8 text-gray-500">
+                    <div class="text-4xl mb-2">🛒</div>
+                    <p class="text-lg font-semibold mb-1">السلة فارغة</p>
+                    <p class="text-sm">أضف منتجات لبدء الطلب</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-2xl font-bold mb-4">ملحمة ومشاوي العمارة</h3>
+            <p class="mb-2">أبوظبي - المصفح - شعبية 10</p>
+            <p class="mb-4">أجود أنواع اللحوم الطازجة والمشاوي - خدمة 24 ساعة</p>
+            <div class="flex justify-center space-x-4 space-x-reverse">
+                <a href="tel:+971566588281" class="hover:text-orange-400">📞 +971-56-658-8281</a>
+                <a href="whatsapp://send?phone=971566588281" class="hover:text-green-400">💬 واتساب</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initial data
+        let grilledProducts = [
+            { id: 1, name: "تكة غنم", price: 75, emoji: "🐑" },
+            { id: 2, name: "تكة فتايل", price: 84, emoji: "🥩" },
+            { id: 3, name: "كباب لحم", price: 55, emoji: "🍢" },
+            { id: 4, name: "كباب مكس لحم وعجل", price: 50, emoji: "🍢" },
+            { id: 5, name: "كباب عجل", price: 45, emoji: "🍢" },
+            { id: 6, name: "شيش طاووق", price: 45, emoji: "🐔" },
+            { id: 7, name: "دجاج متبل", price: 25, emoji: "🐔" },
+            { id: 8, name: "ريش خاروف استرالي", price: 75, emoji: "🐑" },
+            { id: 9, name: "ريش نجدي متبلة", price: 80, emoji: "🐑" }
+        ];
+
+        let poultryProducts = [
+            { id: 10, name: "دجاج فرش", price: 18, emoji: "🐔" },
+            { id: 11, name: "صدور دجاج", price: 35, emoji: "🐔" },
+            { id: 12, name: "اسكالوب", price: 35, emoji: "🐔" },
+            { id: 13, name: "كرات كفتة دجاج", price: 35, emoji: "🐔" },
+            { id: 14, name: "برغر دجاج", price: 35, emoji: "🍔" },
+            { id: 15, name: "شاورما دجاج", price: 35, emoji: "🌯" },
+            { id: 16, name: "فاهيتا", price: 35, emoji: "🌮" }
+        ];
+
+        let meatProducts = [
+            { id: 17, name: "لحم استرالي بالعظم", price: 49, emoji: "🥩", needsWeight: true },
+            { id: 18, name: "ريش استرالي", price: 65, emoji: "🥩", needsWeight: true },
+            { id: 19, name: "ضهر استرالي", price: 52.5, emoji: "🥩", needsWeight: true },
+            { id: 20, name: "لحم استرالي مفروم", price: 55, emoji: "🥩", needsWeight: true },
+            { id: 21, name: "هبرة استرالي", price: 65, emoji: "🥩", needsWeight: true },
+            { id: 22, name: "كفتة استرالي", price: 50, emoji: "🥩", needsWeight: true },
+            { id: 23, name: "لحم قطع بدون عظم", price: 68, emoji: "🥩", needsWeight: true },
+            { id: 24, name: "لحم بالعظم نجدي", price: 55, emoji: "🐑", needsWeight: true },
+            { id: 25, name: "ريش نجدي", price: 75, emoji: "🐑", needsWeight: true },
+            { id: 26, name: "مفروم نجدي", price: 55, emoji: "🐑", needsWeight: true },
+            { id: 27, name: "كفتة نجدي", price: 50, emoji: "🐑", needsWeight: true },
+            { id: 28, name: "قطع لحم بدون عظم", price: 72, emoji: "🐑", needsWeight: true },
+            { id: 29, name: "ضهر نجدي", price: 57, emoji: "🐑", needsWeight: true }
+        ];
+
+        let deliveryAreas = [
+            { name: "شعبية 10", price: 3 },
+            { name: "شعبية 11", price: 3 },
+            { name: "شعبية 12", price: 5 },
+            { name: "شعبية 9", price: 5 },
+            { name: "مصفح صناعية", price: 10 },
+            { name: "غنتوت", price: 40 },
+            { name: "سمحة", price: 35 },
+            { name: "الباهية", price: 35 },
+            { name: "الشهامة", price: 35 },
+            { name: "سويحان", price: 30 },
+            { name: "الفلاح", price: 30 },
+            { name: "الشامخة", price: 30 },
+            { name: "شوامخ", price: 25 },
+            { name: "شخبوط", price: 20 },
+            { name: "محمد بن زايد", price: 10 },
+            { name: "خليفة سيتي", price: 20 },
+            { name: "مصدر", price: 20 },
+            { name: "شاطئ الراحة", price: 20 },
+            { name: "جزيرة ياس", price: 30 }
+        ];
+
+        let cart = [];
+        let currentProduct = null;
+        let adminClickCount = 0;
+        let promoMessage = "";
+        let mobileCartExpanded = false;
+
+        // Mobile cart toggle
+        function toggleMobileCart() {
+            const mobileCart = document.getElementById('mobileCart');
+            const toggleIcon = document.getElementById('cartToggleIcon');
+            
+            mobileCartExpanded = !mobileCartExpanded;
+            
+            if (mobileCartExpanded) {
+                mobileCart.classList.remove('mobile-cart-collapsed');
+                mobileCart.classList.add('mobile-cart-expanded');
+                toggleIcon.textContent = '▼';
+            } else {
+                mobileCart.classList.remove('mobile-cart-expanded');
+                mobileCart.classList.add('mobile-cart-collapsed');
+                toggleIcon.textContent = '▲';
+            }
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            const savedGrilled = localStorage.getItem('butchery_grilled');
+            const savedPoultry = localStorage.getItem('butchery_poultry');
+            const savedMeat = localStorage.getItem('butchery_meat');
+            const savedDelivery = localStorage.getItem('butchery_delivery');
+            const savedPromo = localStorage.getItem('butchery_promo');
+            
+            if (savedGrilled) grilledProducts = JSON.parse(savedGrilled);
+            if (savedPoultry) poultryProducts = JSON.parse(savedPoultry);
+            if (savedMeat) meatProducts = JSON.parse(savedMeat);
+            if (savedDelivery) deliveryAreas = JSON.parse(savedDelivery);
+            if (savedPromo) {
+                promoMessage = savedPromo;
+                showPromoMessage();
+            }
+        }
+
+        // Save data
+        function saveData() {
+            localStorage.setItem('butchery_grilled', JSON.stringify(grilledProducts));
+            localStorage.setItem('butchery_poultry', JSON.stringify(poultryProducts));
+            localStorage.setItem('butchery_meat', JSON.stringify(meatProducts));
+            localStorage.setItem('butchery_delivery', JSON.stringify(deliveryAreas));
+            localStorage.setItem('butchery_promo', promoMessage);
+        }
+
+        // Admin panel access (5 clicks)
+        document.addEventListener('click', function() {
+            adminClickCount++;
+            if (adminClickCount === 5) {
+                toggleAdminPanel();
+                adminClickCount = 0;
+            }
+            setTimeout(() => { adminClickCount = 0; }, 3000);
+        });
+
+        // Promotional messages
+        function setPromoMessage() {
+            const selected = document.getElementById('promoSelect').value;
+            const custom = document.getElementById('customPromo').value;
+            promoMessage = custom || selected;
+            
+            if (promoMessage) {
+                showPromoMessage();
+                saveData();
+                alert('تم تفعيل الرسالة الترويجية!');
+            }
+        }
+
+        function clearPromoMessage() {
+            promoMessage = "";
+            document.getElementById('promoBanner').classList.add('hidden');
+            saveData();
+            alert('تم إلغاء الرسالة الترويجية!');
+        }
+
+        function showPromoMessage() {
+            if (promoMessage) {
+                document.getElementById('promoText').textContent = promoMessage;
+                document.getElementById('promoBanner').classList.remove('hidden');
+            }
+        }
+
+        // Render functions
+        function renderProducts(products, gridId) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = products.map(product => `
+                <div class="meat-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-6xl mb-4 text-center">${product.emoji}</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${product.name}</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="price-tag px-3 py-1 rounded-full text-lg">${product.price} درهم${product.needsWeight ? '/كيلو' : ''}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${!product.needsWeight ? `
+                                <button onclick="updateQuantity(${product.id}, -1)" class="bg-red-500 text-white w-8 h-8 rounded-full hover:bg-red-600">-</button>
+                                <span id="qty-${product.id}" class="font-bold text-lg min-w-[2rem] text-center">0</span>
+                                <button onclick="updateQuantity(${product.id}, 1)" class="bg-green-500 text-white w-8 h-8 rounded-full hover:bg-green-600">+</button>
+                            ` : ''}
+                            <button onclick="addToCart(${product.id})" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 ${!product.needsWeight ? 'mr-2' : ''} flex-1">
+                                ${product.needsWeight ? 'اختر الوزن' : 'أضف للسلة'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDeliveryAreas() {
+            const grid = document.getElementById('deliveryAreasGrid');
+            const desktopSelect = document.getElementById('desktopDeliveryAreaSelect');
+            const mobileSelect = document.getElementById('mobileDeliveryAreaSelect');
+            
+            if (grid) {
+                grid.innerHTML = deliveryAreas.map(area => `
+                    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">${area.name}</h4>
+                        <p class="text-orange-600 font-bold text-xl">${area.price} درهم</p>
+                    </div>
+                `).join('');
+            }
+            
+            const optionsHTML = '<option value="">اختر المنطقة</option>' + 
+                deliveryAreas.map(area => `<option value="${area.name}">${area.name} - ${area.price} درهم</option>`).join('');
+            
+            if (desktopSelect) desktopSelect.innerHTML = optionsHTML;
+            if (mobileSelect) mobileSelect.innerHTML = optionsHTML;
+        }
+
+        // Weight selection
+        function addToCart(productId) {
+            const product = findProductById(productId);
+            if (!product) return;
+            
+            if (product.needsWeight) {
+                currentProduct = product;
+                document.getElementById('productInfo').innerHTML = `
+                    <h4 class="font-bold">${product.name}</h4>
+                    <p>${product.price} درهم/كيلو</p>
+                `;
+                document.getElementById('weightModal').classList.remove('hidden');
+            } else {
+                const qtyElement = document.getElementById(`qty-${productId}`);
+                const quantity = parseInt(qtyElement.textContent);
+                
+                if (quantity > 0) {
+                    addProductToCart(product, quantity);
+                    qtyElement.textContent = '0';
+                }
+            }
+        }
+
+        function selectWeight(weight) {
+            document.getElementById('customWeight').value = weight;
+        }
+
+        function confirmWeight() {
+            const weight = parseFloat(document.getElementById('customWeight').value);
+            if (weight > 0 && currentProduct) {
+                addProductToCart(currentProduct, weight);
+                closeWeightModal();
+            } else {
+                alert('يرجى إدخال وزن صحيح');
+            }
+        }
+
+        function closeWeightModal() {
+            document.getElementById('weightModal').classList.add('hidden');
+            document.getElementById('customWeight').value = '';
+            currentProduct = null;
+        }
+
+        function addProductToCart(product, quantity) {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity,
+                    needsWeight: product.needsWeight || false
+                });
+            }
+            updateOrderSummary();
+            
+            const weightText = product.needsWeight ? ` (${quantity} كيلو)` : ` (${quantity} قطعة)`;
+            alert(`تم إضافة ${product.name}${weightText} إلى السلة`);
+        }
+
+        function findProductById(id) {
+            return [...grilledProducts, ...poultryProducts, ...meatProducts].find(p => p.id === id);
+        }
+
+        function updateQuantity(productId, change) {
+            const qtyElement = document.getElementById(`qty-${productId}`);
+            let currentQty = parseInt(qtyElement.textContent);
+            currentQty = Math.max(0, currentQty + change);
+            qtyElement.textContent = currentQty;
+        }
+
+        function updateOrderSummary() {
+            // Desktop cart
+            const desktopSummary = document.getElementById('desktopOrderSummary');
+            const desktopDeliverySection = document.getElementById('desktopDeliverySection');
+            const desktopEmptyCartMessage = document.getElementById('desktopEmptyCartMessage');
+            const desktopCartItemCount = document.getElementById('desktopCartItemCount');
+            
+            // Mobile cart
+            const mobileSummary = document.getElementById('mobileOrderSummary');
+            const mobileDeliverySection = document.getElementById('mobileDeliverySection');
+            const mobileEmptyCartMessage = document.getElementById('mobileEmptyCartMessage');
+            const mobileCartItemCount = document.getElementById('mobileCartItemCount');
+            
+            if (cart.length === 0) {
+                // Desktop
+                if (desktopSummary) desktopSummary.innerHTML = '';
+                if (desktopDeliverySection) desktopDeliverySection.classList.add('hidden');
+                if (desktopEmptyCartMessage) desktopEmptyCartMessage.classList.remove('hidden');
+                if (desktopCartItemCount) desktopCartItemCount.textContent = '';
+                document.getElementById('desktopTotalAmount').innerHTML = '';
+                
+                // Mobile
+                if (mobileSummary) mobileSummary.innerHTML = '';
+                if (mobileDeliverySection) mobileDeliverySection.classList.add('hidden');
+                if (mobileEmptyCartMessage) mobileEmptyCartMessage.classList.remove('hidden');
+                if (mobileCartItemCount) mobileCartItemCount.textContent = '';
+                document.getElementById('mobileTotalAmount').innerHTML = '';
+                return;
+            }
+            
+            // Hide empty messages and show delivery sections
+            if (desktopEmptyCartMessage) desktopEmptyCartMessage.classList.add('hidden');
+            if (desktopDeliverySection) desktopDeliverySection.classList.remove('hidden');
+            if (mobileEmptyCartMessage) mobileEmptyCartMessage.classList.add('hidden');
+            if (mobileDeliverySection) mobileDeliverySection.classList.remove('hidden');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const countText = `${totalItems} منتج في السلة`;
+            if (desktopCartItemCount) desktopCartItemCount.textContent = countText;
+            if (mobileCartItemCount) mobileCartItemCount.textContent = countText;
+            
+            const summaryHTML = cart.map(item => {
+                const total = item.price * item.quantity;
+                const unit = item.needsWeight ? 'كيلو' : 'قطعة';
+                return `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-r-4 border-orange-300">
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800">${item.name}</div>
+                            <div class="text-sm text-gray-600">${item.quantity} ${unit} × ${item.price} درهم</div>
+                        </div>
+                        <div class="font-bold text-orange-600">${total} درهم</div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (desktopSummary) desktopSummary.innerHTML = summaryHTML;
+            if (mobileSummary) mobileSummary.innerHTML = summaryHTML;
+            
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // Get selected areas from both desktop and mobile
+            const desktopSelect = document.getElementById('desktopDeliveryAreaSelect');
+            const mobileSelect = document.getElementById('mobileDeliveryAreaSelect');
+            
+            let selectedAreaName = '';
+            if (desktopSelect && desktopSelect.value) selectedAreaName = desktopSelect.value;
+            if (mobileSelect && mobileSelect.value) selectedAreaName = mobileSelect.value;
+            
+            const selectedArea = deliveryAreas.find(area => area.name === selectedAreaName);
+            
+            let deliveryFee = 0;
+            let deliveryInfo = '';
+            
+            if (selectedArea) {
+                deliveryFee = selectedArea.price;
+                deliveryInfo = `رسوم التوصيل: ${deliveryFee} درهم (${selectedArea.name})`;
+            }
+            
+            // Update delivery info
+            const desktopDeliveryInfo = document.getElementById('desktopDeliveryInfo');
+            const mobileDeliveryInfo = document.getElementById('mobileDeliveryInfo');
+            if (desktopDeliveryInfo) desktopDeliveryInfo.textContent = deliveryInfo;
+            if (mobileDeliveryInfo) mobileDeliveryInfo.textContent = deliveryInfo;
+            
+            const total = subtotal + deliveryFee;
+            const totalHTML = `
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl ml-2">💰</span>
+                    <span class="font-bold text-lg">ملخص الفاتورة</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>المجموع الفرعي:</span>
+                        <span class="font-semibold">${subtotal} درهم</span>
+                    </div>
+                    ${deliveryFee > 0 ? `
+                        <div class="flex justify-between">
+                            <span>رسوم التوصيل:</span>
+                            <span class="font-semibold">${deliveryFee} درهم</span>
+                        </div>
+                    ` : ''}
+                    <hr class="border-orange-300">
+                    <div class="flex justify-between text-xl font-bold">
+                        <span>المجموع الكلي:</span>
+                        <span>${total} درهم</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('desktopTotalAmount').innerHTML = totalHTML;
+            document.getElementById('mobileTotalAmount').innerHTML = totalHTML;
+        }
+
+        // Event listeners for delivery area selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const desktopSelect = document.getElementById('desktopDeliveryAreaSelect');
+            const mobileSelect = document.getElementById('mobileDeliveryAreaSelect');
+            
+            if (desktopSelect) {
+                desktopSelect.addEventListener('change', function() {
+                    // Sync with mobile select
+                    if (mobileSelect) mobileSelect.value = this.value;
+                    calculateTotal();
+                });
+            }
+            
+            if (mobileSelect) {
+                mobileSelect.addEventListener('change', function() {
+                    // Sync with desktop select
+                    if (desktopSelect) desktopSelect.value = this.value;
+                    calculateTotal();
+                });
+            }
+        });
+
+        function sendWhatsAppOrder() {
+            if (cart.length === 0) {
+                alert('السلة فارغة! أضف منتجات أولاً');
+                return;
+            }
+            
+            const desktopSelect = document.getElementById('desktopDeliveryAreaSelect');
+            const mobileSelect = document.getElementById('mobileDeliveryAreaSelect');
+            let selectedAreaName = '';
+            
+            if (desktopSelect && desktopSelect.value) selectedAreaName = desktopSelect.value;
+            if (mobileSelect && mobileSelect.value) selectedAreaName = mobileSelect.value;
+            
+            if (!selectedAreaName) {
+                alert('يرجى اختيار منطقة التوصيل');
+                return;
+            }
+            
+            let message = '🥩 *شكراً لاختياركم ملحمة ومشاوي العمارة*\n\n';
+            message += '*طلب جديد:*\n\n';
+            
+            cart.forEach(item => {
+                const total = item.price * item.quantity;
+                const unit = item.needsWeight ? 'كيلو' : 'قطعة';
+                message += `• ${item.name}: ${item.quantity} ${unit} - ${total} درهم\n`;
+            });
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const selectedArea = deliveryAreas.find(area => area.name === selectedAreaName);
+            const deliveryFee = selectedArea.price;
+            const total = subtotal + deliveryFee;
+            
+            message += `\n*📍 منطقة التوصيل: ${selectedArea.name}*\n`;
+            message += `*المجموع الفرعي: ${subtotal} درهم*\n`;
+            message += `*رسوم التوصيل: ${deliveryFee} درهم*\n`;
+            message += `*المجموع الكلي: ${total} درهم*\n\n`;
+            message += 'يرجى تأكيد الطلب وإرسال عنوان التوصيل التفصيلي 📍';
+            
+            const whatsappUrl = `whatsapp://send?phone=971566588281&text=${encodeURIComponent(message)}`;
+            window.location.href = whatsappUrl;
+        }
+
+        // Admin functions
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                renderAdminProducts();
+                renderAdminDeliveryAreas();
+            }
+        }
+
+        function renderAdminProducts() {
+            renderAdminProductList('grilledList', grilledProducts, 'grilled');
+            renderAdminProductList('poultryList', poultryProducts, 'poultry');
+            renderAdminProductList('meatList', meatProducts, 'meat');
+        }
+
+        function renderAdminProductList(listId, products, type) {
+            const list = document.getElementById(listId);
+            list.innerHTML = products.map(product => `
+                <div class="bg-gray-700 p-2 rounded flex justify-between items-center text-xs">
+                    <div class="flex-1">
+                        <input type="text" value="${product.name}" onchange="updateProduct('${type}', ${product.id}, 'name', this.value)" class="bg-gray-600 text-white p-1 rounded text-xs w-20">
+                        <input type="number" value="${product.price}" onchange="updateProduct('${type}', ${product.id}, 'price', this.value)" class="bg-gray-600 text-white p-1 rounded w-12 text-xs">
+                    </div>
+                    <button onclick="deleteProduct('${type}', ${product.id})" class="bg-red-600 text-white px-1 py-1 rounded hover:bg-red-700 text-xs">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminDeliveryAreas() {
+            const list = document.getElementById('deliveryAreasList');
+            list.innerHTML = deliveryAreas.map((area, index) => `
+                <div class="bg-gray-700 p-2 rounded flex justify-between items-center">
+                    <div class="flex-1">
+                        <input type="text" value="${area.name}" onchange="updateDeliveryArea(${index}, 'name', this.value)" class="bg-gray-600 text-white p-1 rounded mr-2 text-sm w-24">
+                        <input type="number" value="${area.price}" onchange="updateDeliveryArea(${index}, 'price', this.value)" class="bg-gray-600 text-white p-1 rounded w-16 text-sm">
+                        <span class="text-white mr-1 text-sm">درهم</span>
+                    </div>
+                    <button onclick="deleteDeliveryArea(${index})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        function updateProduct(type, id, field, value) {
+            let products;
+            switch(type) {
+                case 'grilled': products = grilledProducts; break;
+                case 'poultry': products = poultryProducts; break;
+                case 'meat': products = meatProducts; break;
+            }
+            
+            const product = products.find(p => p.id === id);
+            if (product) {
+                product[field] = field === 'price' ? parseFloat(value) : value;
+                saveData();
+                renderAllProducts();
+            }
+        }
+
+        function deleteProduct(type, id) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                switch(type) {
+                    case 'grilled': 
+                        grilledProducts = grilledProducts.filter(p => p.id !== id);
+                        break;
+                    case 'poultry': 
+                        poultryProducts = poultryProducts.filter(p => p.id !== id);
+                        break;
+                    case 'meat': 
+                        meatProducts = meatProducts.filter(p => p.id !== id);
+                        break;
+                }
+                saveData();
+                renderAllProducts();
+                renderAdminProducts();
+            }
+        }
+
+        function addNewProduct(type) {
+            const name = prompt('اسم المنتج:');
+            const price = prompt('السعر:');
+            const emoji = prompt('الرمز التعبيري:');
+            
+            if (name && price && emoji) {
+                let products, maxId = 0;
+                switch(type) {
+                    case 'grilled': 
+                        products = grilledProducts;
+                        maxId = Math.max(...grilledProducts.map(p => p.id), 0);
+                        break;
+                    case 'poultry': 
+                        products = poultryProducts;
+                        maxId = Math.max(...poultryProducts.map(p => p.id), 0);
+                        break;
+                    case 'meat': 
+                        products = meatProducts;
+                        maxId = Math.max(...meatProducts.map(p => p.id), 0);
+                        break;
+                }
+                
+                const newProduct = {
+                    id: maxId + 1,
+                    name: name,
+                    price: parseFloat(price),
+                    emoji: emoji
+                };
+                
+                if (type === 'meat') {
+                    newProduct.needsWeight = true;
+                }
+                
+                products.push(newProduct);
+                saveData();
+                renderAllProducts();
+                renderAdminProducts();
+            }
+        }
+
+        function updateDeliveryArea(index, field, value) {
+            if (deliveryAreas[index]) {
+                deliveryAreas[index][field] = field === 'price' ? parseFloat(value) : value;
+                saveData();
+                renderDeliveryAreas();
+            }
+        }
+
+        function deleteDeliveryArea(index) {
+            if (confirm('هل أنت متأكد من حذف هذه المنطقة؟')) {
+                deliveryAreas.splice(index, 1);
+                saveData();
+                renderDeliveryAreas();
+                renderAdminDeliveryAreas();
+            }
+        }
+
+        function addNewDeliveryArea() {
+            const name = prompt('اسم المنطقة:');
+            const price = prompt('سعر التوصيل:');
+            
+            if (name && price) {
+                deliveryAreas.push({
+                    name: name,
+                    price: parseFloat(price)
+                });
+                saveData();
+                renderDeliveryAreas();
+                renderAdminDeliveryAreas();
+            }
+        }
+
+
+
+        function renderAllProducts() {
+            renderProducts(grilledProducts, 'grilledGrid');
+            renderProducts(poultryProducts, 'poultryGrid');
+            renderProducts(meatProducts, 'meatGrid');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            renderAllProducts();
+            renderDeliveryAreas();
+            updateOrderSummary();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98078d56814c3415',t:'MTc1ODEwMTA4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
